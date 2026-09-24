@@ -63,25 +63,68 @@ export async function fetchExpenseTotal() {
   return { total, itemCount };
 }
 
-/** @typedef {{ bankTotal: number, sponsorshipTotal: number, totalCollection: number, totalExpense: number, balance: number, sponsorshipRows: { name: string, amount: number }[], expenseItemCount: number, fetchedAt: string }} FinanceSummary */
+/** @typedef {{ name: string, amount: number, excludedFromTotal?: boolean, note?: string }} SponsorshipRow */
 
-/** @param {number} bankTotal @returns {Promise<FinanceSummary>} */
-export async function fetchFinanceSummary(bankTotal) {
+/** @typedef {{ bankTotal: number, sponsorshipTotal: number, totalCollection: number, totalExpense: number, balance: number, sponsorshipRows: SponsorshipRow[], expenseItemCount: number, fetchedAt: string }} FinanceSummary */
+
+/**
+ * @param {{ name: string, amount: number }[]} rows
+ * @param {import('./bank-csv.js').BankTransaction[]} bankTransactions
+ */
+function applySponsorshipBankDedup(rows, bankTransactions) {
+  const rules = config.sponsorshipDedupeFromBank ?? [];
+  /** @type {SponsorshipRow[]} */
+  const processed = [];
+  let total = 0;
+
+  for (const row of rows) {
+    let excluded = false;
+    const nameLower = row.name.toLowerCase();
+
+    for (const rule of rules) {
+      if (!nameLower.includes(rule.name.toLowerCase())) continue;
+      const inBank = bankTransactions.some((tx) =>
+        tx.upi.toLowerCase().includes(rule.upiContains.toLowerCase()),
+      );
+      if (inBank) {
+        excluded = true;
+        break;
+      }
+    }
+
+    processed.push({
+      ...row,
+      excludedFromTotal: excluded,
+      ...(excluded ? { note: "Already counted in bank UPI" } : {}),
+    });
+    if (!excluded) total += row.amount;
+  }
+
+  return { rows: processed, total };
+}
+
+/** @param {number} bankTotal @param {import('./bank-csv.js').BankTransaction[]} [bankTransactions] @returns {Promise<FinanceSummary>} */
+export async function fetchFinanceSummary(bankTotal, bankTransactions = []) {
   const [sponsorship, expense] = await Promise.all([
     fetchSponsorshipTotal(),
     fetchExpenseTotal(),
   ]);
 
-  const totalCollection = bankTotal + sponsorship.total;
+  const sponsorshipAdjusted = applySponsorshipBankDedup(
+    sponsorship.rows,
+    bankTransactions,
+  );
+
+  const totalCollection = bankTotal + sponsorshipAdjusted.total;
   const balance = totalCollection - expense.total;
 
   return {
     bankTotal,
-    sponsorshipTotal: sponsorship.total,
+    sponsorshipTotal: sponsorshipAdjusted.total,
     totalCollection,
     totalExpense: expense.total,
     balance,
-    sponsorshipRows: sponsorship.rows,
+    sponsorshipRows: sponsorshipAdjusted.rows,
     expenseItemCount: expense.itemCount,
     fetchedAt: new Date().toISOString(),
   };

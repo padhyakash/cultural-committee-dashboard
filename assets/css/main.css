@@ -582,6 +582,19 @@ tbody tr.summary {
   border-radius: 6px;
 }
 
+.sponsorship-row--excluded {
+  opacity: 0.72;
+  background: #f8fafc;
+}
+
+.sponsorship-dedupe-note {
+  display: inline-block;
+  margin-left: 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
 .photos-dialog,
 .photos-lightbox {
   padding: 0;

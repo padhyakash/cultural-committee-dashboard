@@ -6,6 +6,16 @@ export const config = {
     sponsorship: "Sponsorship",
     expense: "Expense",
   },
+  /**
+   * Sponsorship rows that also appear in bank UPI — excluded from sponsorship total.
+   * `name` matches the Sponsorship tab (substring). `upiContains` matches the bank UPI ID.
+   * @type {{ name: string, upiContains: string }[]}
+   */
+  sponsorshipDedupeFromBank: [
+    { name: "Manjunath", upiContains: "manjunath" },
+    { name: "Dillip", upiContains: "dilip" },
+    { name: "Dilip", upiContains: "dilip" },
+  ],
   contributions: {
     csvFiles: [
       "data/contributions/Transaction_Details_Aug_2026.csv",
@@ -144,6 +154,7 @@ export const config = {
  *   sheetId: string,
  *   refreshMs: number,
  *   sheets: { sponsorship: string, expense: string },
+ *   sponsorshipDedupeFromBank: { name: string, upiContains: string }[],
  *   contributions: { csvFiles: string[] },
  *   billsDriveUrl: string,
  *   volunteerNames: string[],

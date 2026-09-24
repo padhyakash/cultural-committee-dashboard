@@ -50,6 +50,32 @@ function normalizeUpiQuery(value) {
   return value.trim().toLowerCase().replace(/\s+/g, "");
 }
 
+/** @param {import('./bank-csv.js').BankTransaction} row @param {string} rawQuery */
+function transactionMatchesSearch(row, rawQuery) {
+  const trimmed = rawQuery.trim();
+  if (!trimmed) return true;
+
+  const parts = trimmed.split(/\s+/).filter(Boolean);
+  if (parts.length > 1) {
+    return parts.every((part) => transactionMatchesSearch(row, part));
+  }
+
+  const queryNorm = normalizeUpiQuery(trimmed);
+  if (queryNorm && normalizeUpiQuery(row.upi).includes(queryNorm)) {
+    return true;
+  }
+
+  const numericPart = trimmed.replace(/[₹,\s]/g, "");
+  if (/^\d+(\.\d+)?$/.test(numericPart)) {
+    const qAmount = Number(numericPart);
+    if (Number.isFinite(qAmount) && row.amount === qAmount) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /** @type {import('./bank-csv.js').BankTransaction[]} */
 let allTransactions = [];
 /** @type {import('./sheet.js').FinanceSummary | null} */
@@ -199,8 +225,12 @@ function renderFinance() {
 
   els.sponsorshipTable.innerHTML = finance.sponsorshipRows
     .map(
-      (row) => `<tr>
-        <td>${escapeHtml(row.name)}</td>
+      (row) => `<tr${row.excludedFromTotal ? ' class="sponsorship-row--excluded"' : ""}>
+        <td>${escapeHtml(row.name)}${
+          row.note
+            ? ` <span class="sponsorship-dedupe-note">${escapeHtml(row.note)}</span>`
+            : ""
+        }</td>
         <td class="num">${formatCurrency(row.amount)}</td>
       </tr>`,
     )
@@ -211,9 +241,9 @@ function renderFinance() {
 }
 
 function renderTransactions() {
-  const query = normalizeUpiQuery(els.upiSearch.value);
+  const query = els.upiSearch.value.trim();
   const filtered = query
-    ? allTransactions.filter((row) => row.upi.includes(query))
+    ? allTransactions.filter((row) => transactionMatchesSearch(row, query))
     : allTransactions;
 
   const total = filtered.reduce((sum, row) => sum + row.amount, 0);
@@ -249,7 +279,7 @@ async function refresh() {
   try {
     allTransactions = await loadBankTransactions();
     const bankTotal = sumBankTransactions(allTransactions);
-    finance = await fetchFinanceSummary(bankTotal);
+    finance = await fetchFinanceSummary(bankTotal, allTransactions);
     renderFinance();
     renderTransactions();
     clearError();

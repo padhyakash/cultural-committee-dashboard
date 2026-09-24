@@ -83,21 +83,21 @@
           <div>
             <h2>Bank UPI payments</h2>
             <p class="panel-desc">
-              Actual transactions from bank statements. Search your UPI ID to see your contribution.
+              Actual transactions from bank statements. Search by UPI ID or amount to find your contribution.
             </p>
           </div>
           <p class="contrib-summary" id="contrib-summary">—</p>
         </div>
         <label class="search-field">
-          <span class="search-label">Search UPI ID</span>
+          <span class="search-label">Search UPI ID or amount</span>
           <input
             type="search"
             id="upi-search"
-            placeholder="e.g. name@okhdfcbank or 9876543210@ybl"
+            placeholder="e.g. name@ybl, 5000 or 9876543210@ybl"
             autocomplete="off"
           />
         </label>
-        <p id="contrib-empty" class="contrib-empty hidden">No matching payments for this UPI ID.</p>
+        <p id="contrib-empty" class="contrib-empty hidden">No matching payments for this search.</p>
         <div class="table-scroll table-scroll--tall">
           <table>
             <thead>
@@ -115,7 +115,9 @@
 
       <section class="panel">
         <h2>Sponsorship breakdown</h2>
-        <p class="panel-desc">Line items from the Sponsorship tab (included in total collection).</p>
+        <p class="panel-desc">
+          Line items from the Sponsorship tab. Rows already paid via bank UPI are not added again to totals.
+        </p>
         <div class="table-scroll">
           <table>
             <thead>
