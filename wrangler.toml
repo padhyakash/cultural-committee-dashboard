@@ -1,4 +1,4 @@
-name = "cultural-committee-dashboard"
+name = "bdakph2-cultural-committee"
 compatibility_date = "2025-09-24"
 
 # Static site only — do not upload dev dependencies (see .assetsignore).
