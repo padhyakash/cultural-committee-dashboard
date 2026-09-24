@@ -77,6 +77,11 @@ const els = {
   sponsorshipTable: document.getElementById("sponsorship-table"),
   verifyLinks: document.getElementById("verify-links"),
   metricBalanceCard: document.getElementById("metric-balance-card"),
+  thanksPanel: document.getElementById("thanks-panel"),
+  thanksTitle: document.getElementById("thanks-title"),
+  thanksResidents: document.getElementById("thanks-residents"),
+  thanksVolunteers: document.getElementById("thanks-volunteers"),
+  thanksVolunteerList: document.getElementById("thanks-volunteer-list"),
 };
 
 els.billsLink.href = config.billsDriveUrl;
@@ -125,6 +130,35 @@ function resolveAssetUrl(path, base) {
 
 setupVerifyLinks();
 initPhotosGallery();
+renderThanks();
+
+function renderThanks() {
+  const thanks = config.thanks;
+  if (
+    !thanks ||
+    !els.thanksPanel ||
+    !els.thanksTitle ||
+    !els.thanksResidents ||
+    !els.thanksVolunteers ||
+    !els.thanksVolunteerList
+  ) {
+    return;
+  }
+
+  els.thanksTitle.textContent = thanks.title || "Thank you";
+  els.thanksResidents.textContent = thanks.toResidents || "";
+  els.thanksVolunteers.textContent = thanks.toVolunteers || "";
+
+  const names = (thanks.volunteerNames || []).filter(Boolean);
+  els.thanksVolunteerList.innerHTML = names
+    .map((name) => `<li><strong>${escapeHtml(name)}</strong></li>`)
+    .join("");
+  els.thanksVolunteerList.classList.toggle("hidden", names.length === 0);
+
+  const hasContent =
+    thanks.toResidents || thanks.toVolunteers || names.length > 0;
+  els.thanksPanel.hidden = !hasContent;
+}
 
 function renderVolunteerNote() {
   if (!finance || finance.balance >= 0) {

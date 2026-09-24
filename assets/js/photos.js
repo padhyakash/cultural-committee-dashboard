@@ -36,6 +36,38 @@ function resolveAssetUrl(path) {
   return `${base}${clean}`;
 }
 
+/** @returns {{ youtubeUrl: string, title?: string, videoId: string }[]} */
+function getEventVideos() {
+  const fromList = (config.eventVideos || [])
+    .filter((item) => item?.youtubeUrl)
+    .map((item, index) => ({
+      youtubeUrl: item.youtubeUrl,
+      title: item.title || `Event video ${index + 1}`,
+      videoId: youtubeVideoId(item.youtubeUrl),
+    }))
+    .filter((item) => item.videoId);
+
+  if (fromList.length > 0) return fromList;
+
+  const legacy = /** @type {{ youtubeUrl?: string, title?: string }} */ (
+    config.eventVideo
+  );
+  if (legacy?.youtubeUrl) {
+    const videoId = youtubeVideoId(legacy.youtubeUrl);
+    if (videoId) {
+      return [
+        {
+          youtubeUrl: legacy.youtubeUrl,
+          title: legacy.title || "Event video",
+          videoId,
+        },
+      ];
+    }
+  }
+
+  return [];
+}
+
 export function initPhotosGallery() {
   const openBtn = document.getElementById("photos-btn");
   const dialog = /** @type {HTMLDialogElement | null} */ (
@@ -51,14 +83,8 @@ export function initPhotosGallery() {
   );
   const lightboxCaption = document.getElementById("photos-lightbox-caption");
   const lightboxClose = document.getElementById("photos-lightbox-close");
-  const videoSection = document.getElementById("photos-video");
-  const videoTitle = document.getElementById("photos-video-title");
-  const videoIframe = /** @type {HTMLIFrameElement | null} */ (
-    document.getElementById("photos-video-iframe")
-  );
-  const videoLink = /** @type {HTMLAnchorElement | null} */ (
-    document.getElementById("photos-video-link")
-  );
+  const videosSection = document.getElementById("photos-videos");
+  const videosList = document.getElementById("photos-videos-list");
 
   if (
     !openBtn ||
@@ -73,26 +99,54 @@ export function initPhotosGallery() {
     return;
   }
 
-  const videoConfig = config.eventVideo;
-  const videoId = videoConfig?.youtubeUrl ? youtubeVideoId(videoConfig.youtubeUrl) : "";
+  const videos = getEventVideos();
 
-  function mountVideo() {
-    if (!videoIframe || !videoId) return;
-    videoIframe.src = `https://www.youtube-nocookie.com/embed/${videoId}`;
+  if (videos.length > 0 && videosSection && videosList) {
+    videosSection.classList.remove("hidden");
+    videosList.innerHTML = videos
+      .map(
+        (video, index) => `<article class="photos-video-item">
+          <h4 class="photos-video-item-title">${escapeHtml(video.title)}</h4>
+          <div class="photos-video-frame">
+            <iframe
+              class="photos-video-iframe"
+              data-video-index="${index}"
+              title="${escapeHtml(video.title)}"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+              loading="lazy"
+              referrerpolicy="strict-origin-when-cross-origin"
+            ></iframe>
+          </div>
+          <p class="photos-video-link-wrap">
+            <a href="${escapeHtml(video.youtubeUrl)}" target="_blank" rel="noopener noreferrer"
+              >Watch on YouTube</a
+            >
+          </p>
+        </article>`,
+      )
+      .join("");
+  } else if (videosSection) {
+    videosSection.classList.add("hidden");
   }
 
-  function unmountVideo() {
-    if (videoIframe) videoIframe.src = "";
+  function mountVideos() {
+    if (!videosList) return;
+    videosList.querySelectorAll(".photos-video-iframe").forEach((node) => {
+      if (!(node instanceof HTMLIFrameElement)) return;
+      const index = Number(node.dataset.videoIndex);
+      const video = videos[index];
+      if (video) {
+        node.src = `https://www.youtube-nocookie.com/embed/${video.videoId}`;
+      }
+    });
   }
 
-  if (videoId && videoSection && videoLink) {
-    videoSection.classList.remove("hidden");
-    const title = videoConfig.title || "Event video";
-    if (videoTitle) videoTitle.textContent = title;
-    if (videoIframe) videoIframe.title = title;
-    videoLink.href = videoConfig.youtubeUrl;
-  } else if (videoSection) {
-    videoSection.classList.add("hidden");
+  function unmountVideos() {
+    if (!videosList) return;
+    videosList.querySelectorAll(".photos-video-iframe").forEach((node) => {
+      if (node instanceof HTMLIFrameElement) node.src = "";
+    });
   }
 
   const photos = config.galleryPhotos.filter((item) => item?.src);
@@ -133,7 +187,7 @@ export function initPhotosGallery() {
   });
 
   openBtn.addEventListener("click", () => {
-    if (videoId) mountVideo();
+    if (videos.length > 0) mountVideos();
     if (typeof dialog.showModal === "function") {
       dialog.showModal();
     }
@@ -143,7 +197,7 @@ export function initPhotosGallery() {
   dialog.addEventListener("click", (event) => {
     if (event.target === dialog) dialog.close();
   });
-  dialog.addEventListener("close", () => unmountVideo());
+  dialog.addEventListener("close", () => unmountVideos());
 
   lightboxClose.addEventListener("click", () => lightbox.close());
   lightbox.addEventListener("click", (event) => {

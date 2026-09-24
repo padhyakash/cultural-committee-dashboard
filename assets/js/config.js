@@ -65,11 +65,70 @@ export const config = {
       caption: "Shawl ceremony",
     },
   ],
-  /** YouTube link for the event video (shown in Photos gallery). */
-  eventVideo: {
-    youtubeUrl: "https://youtu.be/O_KiqL6Rrfg",
-    title: "Ganesh Puja 2026 — event video",
+  /**
+   * Thank-you note on the dashboard (edit volunteerNames when you have the full list).
+   * @type {{ title: string, toResidents: string, toVolunteers: string, volunteerNames: string[] }}
+   */
+  thanks: {
+    title: "Thank you",
+    toResidents:
+      "Heartfelt thanks to all residents of BDA Flats Konadasapura Phase 2 for your generous support, contributions, and participation. Ganesh Puja 2026 was made possible by our community coming together.",
+    toVolunteers:
+      "With deep gratitude to every volunteer whose time, effort, and dedication made this puja successful.",
+    volunteerNames: [
+      "Akash",
+      "Gyan",
+      "Bipin",
+      "Ajit",
+      "Rupesh",
+      "Sudhanshu",
+      "Shakti",
+      "Ishan",
+      "Biswajit",
+      "Deepak",
+      "Mahesh",
+      "Rahul",
+      "Aditi",
+      "Arun",
+      "Khushi",
+      "Ashish",
+      "Purna",
+      "Anshuman",
+      "Rishav",
+      "Janmajay",
+      "Prabhu",
+      "Raj Gopal",
+      "Saroj",
+      "Rakesh",
+      "Gandhi",
+      "Gaurav",
+      "Subas",
+      "Rachit",
+      "Prashant",
+      "Sakshi",
+      "Biswa",
+      "Pramila Aunty",
+      "Aditya Pathak"
+    ],
   },
+  /**
+   * YouTube videos (Photos gallery). Add or edit titles as needed.
+   * @type {{ youtubeUrl: string, title?: string }[]}
+   */
+  eventVideos: [
+    {
+      youtubeUrl: "https://youtu.be/O_KiqL6Rrfg",
+      title: "Ganesh Puja 2026 — event video 1",
+    },
+    {
+      youtubeUrl: "https://youtu.be/GF2Wy5A-TdI",
+      title: "Ganesh Puja 2026 — event video 2",
+    },
+    {
+      youtubeUrl: "https://youtu.be/zIFroIVtDbA",
+      title: "Ganesh Puja 2026 — event video 3",
+    },
+  ],
   /** After Cloudflare Pages deploy, set this to your https://….pages.dev URL */
   publicSiteUrl: "",
   verify: {
@@ -90,7 +149,8 @@ export const config = {
  *   volunteerNames: string[],
  *   volunteerNote: string,
  *   galleryPhotos: { src: string, alt: string, caption?: string }[],
- *   eventVideo: { youtubeUrl: string, title?: string },
+ *   thanks: { title: string, toResidents: string, toVolunteers: string, volunteerNames: string[] },
+ *   eventVideos: { youtubeUrl: string, title?: string }[],
  *   publicSiteUrl: string,
  *   verify: { googleSheet: string, bankCsvAug: string, bankCsvSep: string },
  * }} AppConfig
