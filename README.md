@@ -35,5 +35,13 @@ Sheet must be shared: **Anyone with the link can view**.
 
 ## Deploy (Cloudflare Pages)
 
-- Build command: *(empty)*
-- Output directory: `/`
+Connect GitHub repo **padhyakash/cultural-committee-dashboard**.
+
+| Setting | Value |
+|--------|--------|
+| Build command | *(empty)* |
+| Build output directory | `/` |
+
+This repo includes `.assetsignore` so Cloudflare does **not** upload `node_modules` (required for static deploy).
+
+If deploy fails with **Asset too large** / `workerd`, push the latest code and redeploy — do not use a build step that installs npm packages unless you need it.
