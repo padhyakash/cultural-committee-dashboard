@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BDA Flats Konadasapura Phase 2 Cultural Committee — Finance Dashboard</title>
+    <link rel="icon" href="/assets/images/committee-logo.jpg" type="image/jpeg" />
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="page">
+      <header class="header header-card">
+        <div class="header-brand">
+          <img
+            class="header-logo"
+            src="/assets/images/committee-logo.jpg"
+            width="96"
+            height="96"
+            alt="BDA Flats Konadasapura Phase 2 Cultural Committee logo"
+          />
+          <div class="header-copy">
+            <p class="header-eyebrow">BDA Flats Konadasapura Phase 2 · Ganesh Puja 2026</p>
+            <div class="badges">
+              <span class="badge badge-live"><span class="pulse"></span> Live</span>
+              <span class="badge">Bank + Google Sheets</span>
+            </div>
+            <h1>Cultural Committee finance dashboard</h1>
+            <p class="subtitle">
+              Collections from bank UPI statements plus sponsorship. Expenses from the expense sheet.
+              Last updated <strong id="last-sync">—</strong>.
+            </p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <a class="btn btn-primary" id="bills-link" href="#" target="_blank" rel="noopener noreferrer"
+            >View bills</a
+          >
+          <button type="button" class="btn btn-accent" id="photos-btn">Photos</button>
+          <button type="button" class="btn" id="refresh-btn">Refresh</button>
+        </div>
+      </header>
+
+      <p id="error-banner" class="error-banner hidden" role="alert"></p>
+      <aside id="volunteer-note" class="volunteer-note hidden" aria-live="polite"></aside>
+
+      <main class="dashboard-main">
+      <section class="metrics" aria-label="Summary">
+        <article class="metric-card metric-card--bank">
+          <p class="metric-label">Bank collections</p>
+          <p class="metric-value" id="metric-bank">—</p>
+          <p class="metric-hint" id="metric-bank-hint">—</p>
+        </article>
+        <article class="metric-card metric-card--sponsor">
+          <p class="metric-label">Sponsorship</p>
+          <p class="metric-value" id="metric-sponsorship">—</p>
+          <p class="metric-hint">From Sponsorship tab</p>
+        </article>
+        <article class="metric-card metric-card--highlight">
+          <p class="metric-label">Total collection</p>
+          <p class="metric-value" id="metric-collection">—</p>
+          <p class="metric-hint">Bank + sponsorship</p>
+        </article>
+        <article class="metric-card metric-card--expense">
+          <p class="metric-label">Total expense</p>
+          <p class="metric-value" id="metric-expense">—</p>
+          <p class="metric-hint" id="metric-expense-hint">—</p>
+        </article>
+        <article class="metric-card metric-card--balance" id="metric-balance-card">
+          <p class="metric-label">Balance</p>
+          <p class="metric-value" id="metric-balance">—</p>
+          <p class="metric-hint" id="metric-balance-hint">—</p>
+        </article>
+      </section>
+
+      <section class="panel panel-contributions">
+        <div class="panel-head-row">
+          <div>
+            <h2>Bank UPI payments</h2>
+            <p class="panel-desc">
+              Actual transactions from bank statements. Search your UPI ID to see your contribution.
+            </p>
+          </div>
+          <p class="contrib-summary" id="contrib-summary">—</p>
+        </div>
+        <label class="search-field">
+          <span class="search-label">Search UPI ID</span>
+          <input
+            type="search"
+            id="upi-search"
+            placeholder="e.g. name@okhdfcbank or 9876543210@ybl"
+            autocomplete="off"
+          />
+        </label>
+        <p id="contrib-empty" class="contrib-empty hidden">No matching payments for this UPI ID.</p>
+        <div class="table-scroll table-scroll--tall">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>UPI ID</th>
+                <th class="num">Amount</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody id="transactions-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Sponsorship breakdown</h2>
+        <p class="panel-desc">Line items from the Sponsorship tab (included in total collection).</p>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th class="num">Amount</th>
+              </tr>
+            </thead>
+            <tbody id="sponsorship-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel panel-verify">
+        <h2>Verify sources</h2>
+        <p class="panel-desc">
+          Cross-check dashboard numbers against the original sheet and bank CSV exports.
+        </p>
+        <ul class="verify-links" id="verify-links"></ul>
+      </section>
+      </main>
+
+      <footer class="footer">
+        <p>BDA Flats Konadasapura Phase 2 — Cultural Committee</p>
+      </footer>
+    </div>
+
+    <dialog id="photos-dialog" class="photos-dialog" aria-labelledby="photos-dialog-title">
+      <div class="photos-dialog-panel">
+        <header class="photos-dialog-head">
+          <div>
+            <h2 id="photos-dialog-title">Event photos</h2>
+            <p class="photos-dialog-desc">Ganesh Puja 2026 — cultural committee gallery</p>
+          </div>
+          <button type="button" class="btn photos-close" id="photos-close" aria-label="Close gallery">
+            Close
+          </button>
+        </header>
+        <section class="photos-video hidden" id="photos-video" aria-labelledby="photos-video-title">
+          <h3 class="photos-video-heading" id="photos-video-title">Event video</h3>
+          <div class="photos-video-frame">
+            <iframe
+              id="photos-video-iframe"
+              title="Ganesh Puja 2026 event video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+              loading="lazy"
+              referrerpolicy="strict-origin-when-cross-origin"
+            ></iframe>
+          </div>
+          <p class="photos-video-link-wrap">
+            <a
+              id="photos-video-link"
+              href="https://youtu.be/O_KiqL6Rrfg"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Watch on YouTube</a
+            >
+          </p>
+        </section>
+        <div class="photos-grid" id="photos-grid"></div>
+      </div>
+    </dialog>
+
+    <dialog id="photos-lightbox" class="photos-lightbox" aria-label="Enlarged photo">
+      <button type="button" class="photos-lightbox-close btn" id="photos-lightbox-close">
+        Close
+      </button>
+      <figure class="photos-lightbox-figure">
+        <img id="photos-lightbox-img" alt="" />
+        <figcaption id="photos-lightbox-caption"></figcaption>
+      </figure>
+    </dialog>
+
+    <script type="module" src="/assets/js/app.js"></script>
+  </body>
+</html>

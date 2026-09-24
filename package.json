@@ -1,0 +1,12 @@
+{
+  "name": "live-sheet-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "serve -l 43123",
+    "start": "serve -l 43123"
+  },
+  "devDependencies": {
+    "serve": "^14.2.4"
+  }
+}
