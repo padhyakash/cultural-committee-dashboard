@@ -41,6 +41,9 @@ export const config = {
     "Sudhanshu",
     "Ishan",
     "Shakti",
+    "Deepak",
+    "Saroj",
+    "Prabhudutta",
   ],
   volunteerNote:
     "Expenses exceeded collections. The additional amount was borne by volunteers.",
@@ -137,6 +140,10 @@ export const config = {
     {
       youtubeUrl: "https://youtu.be/zIFroIVtDbA",
       title: "Ganesh Puja 2026 — event video 3",
+    },
+    {
+      youtubeUrl: "https://youtu.be/FRsamao2zwc",
+      title: "Ganesh Puja 2026 — event video 4",
     },
   ],
   /** After Cloudflare Pages deploy, set this to your https://….pages.dev URL */
