@@ -88,10 +88,13 @@ const els = {
   errorBanner: document.getElementById("error-banner"),
   volunteerNote: document.getElementById("volunteer-note"),
   billsLink: /** @type {HTMLAnchorElement} */ (document.getElementById("bills-link")),
+  metricPriorLabel: document.getElementById("metric-prior-label"),
+  metricPriorBalance: document.getElementById("metric-prior-balance"),
   metricBank: document.getElementById("metric-bank"),
   metricBankHint: document.getElementById("metric-bank-hint"),
   metricSponsorship: document.getElementById("metric-sponsorship"),
   metricCollection: document.getElementById("metric-collection"),
+  metricCollectionHint: document.getElementById("metric-collection-hint"),
   metricExpense: document.getElementById("metric-expense"),
   metricExpenseHint: document.getElementById("metric-expense-hint"),
   metricBalance: document.getElementById("metric-balance"),
@@ -204,10 +207,20 @@ function renderVolunteerNote() {
 function renderFinance() {
   if (!finance) return;
 
+  if (els.metricPriorLabel) {
+    els.metricPriorLabel.textContent =
+      config.priorBalanceMetricLabel || "Last year balance";
+  }
+  if (els.metricPriorBalance) {
+    els.metricPriorBalance.textContent = formatCurrency(finance.priorYearBalance);
+  }
   els.metricBank.textContent = formatCurrency(finance.bankTotal);
   els.metricBankHint.textContent = `${formatCount(allTransactions.length)} UPI payments`;
   els.metricSponsorship.textContent = formatCurrency(finance.sponsorshipTotal);
   els.metricCollection.textContent = formatCurrency(finance.totalCollection);
+  if (els.metricCollectionHint) {
+    els.metricCollectionHint.textContent = "Last year + bank + sponsorship";
+  }
   els.metricExpense.textContent = formatCurrency(finance.totalExpense);
   els.metricExpenseHint.textContent = `${formatCount(finance.expenseItemCount)} expense items`;
   els.metricBalance.textContent = formatCurrency(finance.balance);

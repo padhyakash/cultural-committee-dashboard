@@ -16,6 +16,10 @@ export const config = {
     { name: "Dillip", upiContains: "dilip" },
     { name: "Dilip", upiContains: "dilip" },
   ],
+  /** Sponsorship tab row name matched as prior-year balance (not counted under Sponsorship). */
+  sponsorshipPreviousBalancePattern: "previous balance",
+  /** Label for the prior-balance metric card. */
+  priorBalanceMetricLabel: "Last year balance",
   contributions: {
     csvFiles: [
       "data/contributions/Transaction_Details_Aug_2026.csv",
@@ -162,6 +166,8 @@ export const config = {
  *   refreshMs: number,
  *   sheets: { sponsorship: string, expense: string },
  *   sponsorshipDedupeFromBank: { name: string, upiContains: string }[],
+ *   sponsorshipPreviousBalancePattern: string,
+ *   priorBalanceMetricLabel: string,
  *   contributions: { csvFiles: string[] },
  *   billsDriveUrl: string,
  *   volunteerNames: string[],

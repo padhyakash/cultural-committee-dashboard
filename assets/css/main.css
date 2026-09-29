@@ -246,6 +246,12 @@ body {
   box-shadow: 0 2px 4px rgb(12 35 64 / 7%), 0 14px 32px rgb(12 35 64 / 10%);
 }
 
+.metric-card--prior {
+  --metric-accent: #0d9488;
+  border-color: #99f6e4;
+  background: linear-gradient(165deg, #f0fdfa 0%, var(--surface) 100%);
+}
+
 .metric-card--bank {
   --metric-accent: #3b82f6;
 }

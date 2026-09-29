@@ -65,10 +65,35 @@ export async function fetchExpenseTotal() {
 
 /** @typedef {{ name: string, amount: number, excludedFromTotal?: boolean, note?: string }} SponsorshipRow */
 
-/** @typedef {{ bankTotal: number, sponsorshipTotal: number, totalCollection: number, totalExpense: number, balance: number, sponsorshipRows: SponsorshipRow[], expenseItemCount: number, fetchedAt: string }} FinanceSummary */
+/** @typedef {{ bankTotal: number, priorYearBalance: number, sponsorshipTotal: number, totalCollection: number, totalExpense: number, balance: number, sponsorshipRows: SponsorshipRow[], expenseItemCount: number, fetchedAt: string }} FinanceSummary */
+
+/** @param {{ name: string, amount: number }[]} rows */
+function splitPreviousBalance(rows) {
+  const pattern = (config.sponsorshipPreviousBalancePattern || "previous balance")
+    .trim()
+    .toLowerCase();
+  let priorYearBalance = 0;
+  /** @type {{ name: string, amount: number, excludedFromTotal?: boolean, note?: string }[]} */
+  const processed = [];
+
+  for (const row of rows) {
+    if (pattern && row.name.toLowerCase().includes(pattern)) {
+      priorYearBalance += row.amount;
+      processed.push({
+        ...row,
+        excludedFromTotal: true,
+        note: "Shown as last year balance (not in sponsorship total)",
+      });
+      continue;
+    }
+    processed.push(row);
+  }
+
+  return { priorYearBalance, rows: processed };
+}
 
 /**
- * @param {{ name: string, amount: number }[]} rows
+ * @param {{ name: string, amount: number, excludedFromTotal?: boolean, note?: string }[]} rows
  * @param {import('./bank-csv.js').BankTransaction[]} bankTransactions
  */
 function applySponsorshipBankDedup(rows, bankTransactions) {
@@ -78,24 +103,28 @@ function applySponsorshipBankDedup(rows, bankTransactions) {
   let total = 0;
 
   for (const row of rows) {
-    let excluded = false;
-    const nameLower = row.name.toLowerCase();
+    let excluded = Boolean(row.excludedFromTotal);
+    let note = row.note;
 
-    for (const rule of rules) {
-      if (!nameLower.includes(rule.name.toLowerCase())) continue;
-      const inBank = bankTransactions.some((tx) =>
-        tx.upi.toLowerCase().includes(rule.upiContains.toLowerCase()),
-      );
-      if (inBank) {
-        excluded = true;
-        break;
+    if (!excluded) {
+      const nameLower = row.name.toLowerCase();
+      for (const rule of rules) {
+        if (!nameLower.includes(rule.name.toLowerCase())) continue;
+        const inBank = bankTransactions.some((tx) =>
+          tx.upi.toLowerCase().includes(rule.upiContains.toLowerCase()),
+        );
+        if (inBank) {
+          excluded = true;
+          note = "Already counted in bank UPI";
+          break;
+        }
       }
     }
 
     processed.push({
       ...row,
       excludedFromTotal: excluded,
-      ...(excluded ? { note: "Already counted in bank UPI" } : {}),
+      ...(note ? { note } : {}),
     });
     if (!excluded) total += row.amount;
   }
@@ -110,21 +139,34 @@ export async function fetchFinanceSummary(bankTotal, bankTransactions = []) {
     fetchExpenseTotal(),
   ]);
 
-  const sponsorshipAdjusted = applySponsorshipBankDedup(
+  const { priorYearBalance, rows: sponsorshipWithoutPrior } = splitPreviousBalance(
     sponsorship.rows,
+  );
+
+  const sponsorshipAdjusted = applySponsorshipBankDedup(
+    sponsorshipWithoutPrior,
     bankTransactions,
   );
 
-  const totalCollection = bankTotal + sponsorshipAdjusted.total;
+  const totalCollection =
+    bankTotal + priorYearBalance + sponsorshipAdjusted.total;
   const balance = totalCollection - expense.total;
+
+  const priorPattern = (config.sponsorshipPreviousBalancePattern || "previous balance")
+    .trim()
+    .toLowerCase();
+  const sponsorshipRows = sponsorshipAdjusted.rows.filter(
+    (row) => !priorPattern || !row.name.toLowerCase().includes(priorPattern),
+  );
 
   return {
     bankTotal,
+    priorYearBalance,
     sponsorshipTotal: sponsorshipAdjusted.total,
     totalCollection,
     totalExpense: expense.total,
     balance,
-    sponsorshipRows: sponsorshipAdjusted.rows,
+    sponsorshipRows,
     expenseItemCount: expense.itemCount,
     fetchedAt: new Date().toISOString(),
   };

@@ -51,6 +51,10 @@
 
       <main class="dashboard-main">
       <section class="metrics" aria-label="Summary">
+        <article class="metric-card metric-card--prior">
+          <p class="metric-label" id="metric-prior-label">Last year balance</p>
+          <p class="metric-value" id="metric-prior-balance">—</p>
+        </article>
         <article class="metric-card metric-card--bank">
           <p class="metric-label">Bank collections</p>
           <p class="metric-value" id="metric-bank">—</p>
@@ -64,7 +68,7 @@
         <article class="metric-card metric-card--highlight">
           <p class="metric-label">Total collection</p>
           <p class="metric-value" id="metric-collection">—</p>
-          <p class="metric-hint">Bank + sponsorship</p>
+          <p class="metric-hint" id="metric-collection-hint">Last year + bank + sponsorship</p>
         </article>
         <article class="metric-card metric-card--expense">
           <p class="metric-label">Total expense</p>
