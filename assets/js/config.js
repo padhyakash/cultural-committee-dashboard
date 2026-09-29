@@ -124,7 +124,7 @@ export const config = {
       "Prashant",
       "Sakshi",
       "Biswa",
-      "Pramila Aunty",
+      "Pramila madam",
       "Aditya Pathak"
     ],
   },
