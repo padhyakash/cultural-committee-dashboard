@@ -226,7 +226,11 @@ function renderFinance() {
         : "Not already in bank UPI";
   }
   if (els.sponsorshipOverlap) {
-    if (finance.sponsorshipBankOverlapRows.length > 0) {
+    const note = config.sponsorshipBelowTableNote?.trim();
+    if (note) {
+      els.sponsorshipOverlap.textContent = note;
+      els.sponsorshipOverlap.classList.remove("hidden");
+    } else if (finance.sponsorshipBankOverlapRows.length > 0) {
       const names = finance.sponsorshipBankOverlapRows
         .map((row) => `${row.name} (${formatCurrency(row.amount)})`)
         .join(", ");

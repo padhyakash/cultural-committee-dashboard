@@ -602,7 +602,7 @@ tbody tr.summary {
 }
 
 .sponsorship-overlap {
-  margin: 0 0 0.85rem;
+  margin: 0.85rem 0 0;
   padding: 0.65rem 0.85rem;
   border-radius: 10px;
   font-size: 0.86rem;

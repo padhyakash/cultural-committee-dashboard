@@ -16,6 +16,9 @@ export const config = {
     { name: "Dillip", upiContains: "dilip" },
     { name: "Dilip", upiContains: "dilip" },
   ],
+  /** Shown below the sponsorship table (bank UPI overlap). */
+  sponsorshipBelowTableNote:
+    "Note: Manjunath and Dillip each contributed ₹5,000 through UPI. Those payments are already included in Bank UPI payments above, so they are not listed again in this table or added twice to the totals.",
   /** Sponsorship tab row name matched as prior-year balance (not counted under Sponsorship). */
   sponsorshipPreviousBalancePattern: "previous balance",
   /** Label for the prior-balance metric card. */
@@ -168,6 +171,7 @@ export const config = {
  *   refreshMs: number,
  *   sheets: { sponsorship: string, expense: string },
  *   sponsorshipDedupeFromBank: { name: string, upiContains: string }[],
+ *   sponsorshipBelowTableNote: string,
  *   sponsorshipPreviousBalancePattern: string,
  *   priorBalanceMetricLabel: string,
  *   contributions: { csvFiles: string[] },
