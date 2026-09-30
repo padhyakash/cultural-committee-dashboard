@@ -63,7 +63,7 @@
         <article class="metric-card metric-card--sponsor">
           <p class="metric-label">Sponsorship</p>
           <p class="metric-value" id="metric-sponsorship">—</p>
-          <p class="metric-hint">From Sponsorship tab</p>
+          <p class="metric-hint" id="metric-sponsorship-hint">Not already in bank UPI</p>
         </article>
         <article class="metric-card metric-card--highlight">
           <p class="metric-label">Total collection</p>
@@ -120,8 +120,9 @@
       <section class="panel">
         <h2>Sponsorship breakdown</h2>
         <p class="panel-desc">
-          Line items from the Sponsorship tab. Rows already paid via bank UPI are not added again to totals.
+          Only sponsorship amounts that are not already in bank UPI (same total as the Sponsorship chip above).
         </p>
+        <p id="sponsorship-overlap" class="sponsorship-overlap hidden"></p>
         <div class="table-scroll">
           <table>
             <thead>

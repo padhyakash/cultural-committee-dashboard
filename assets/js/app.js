@@ -93,6 +93,8 @@ const els = {
   metricBank: document.getElementById("metric-bank"),
   metricBankHint: document.getElementById("metric-bank-hint"),
   metricSponsorship: document.getElementById("metric-sponsorship"),
+  metricSponsorshipHint: document.getElementById("metric-sponsorship-hint"),
+  sponsorshipOverlap: document.getElementById("sponsorship-overlap"),
   metricCollection: document.getElementById("metric-collection"),
   metricCollectionHint: document.getElementById("metric-collection-hint"),
   metricExpense: document.getElementById("metric-expense"),
@@ -217,6 +219,24 @@ function renderFinance() {
   els.metricBank.textContent = formatCurrency(finance.bankTotal);
   els.metricBankHint.textContent = `${formatCount(allTransactions.length)} UPI payments`;
   els.metricSponsorship.textContent = formatCurrency(finance.sponsorshipTotal);
+  if (els.metricSponsorshipHint) {
+    els.metricSponsorshipHint.textContent =
+      finance.sponsorshipBankOverlapTotal > 0
+        ? `Excludes ${formatCurrency(finance.sponsorshipBankOverlapTotal)} already in bank UPI`
+        : "Not already in bank UPI";
+  }
+  if (els.sponsorshipOverlap) {
+    if (finance.sponsorshipBankOverlapRows.length > 0) {
+      const names = finance.sponsorshipBankOverlapRows
+        .map((row) => `${row.name} (${formatCurrency(row.amount)})`)
+        .join(", ");
+      els.sponsorshipOverlap.textContent = `Also on the Sponsorship sheet but counted under Bank collections (not added again): ${names}.`;
+      els.sponsorshipOverlap.classList.remove("hidden");
+    } else {
+      els.sponsorshipOverlap.textContent = "";
+      els.sponsorshipOverlap.classList.add("hidden");
+    }
+  }
   els.metricCollection.textContent = formatCurrency(finance.totalCollection);
   if (els.metricCollectionHint) {
     els.metricCollectionHint.textContent = "Last year + bank + sponsorship";
@@ -238,12 +258,8 @@ function renderFinance() {
 
   els.sponsorshipTable.innerHTML = finance.sponsorshipRows
     .map(
-      (row) => `<tr${row.excludedFromTotal ? ' class="sponsorship-row--excluded"' : ""}>
-        <td>${escapeHtml(row.name)}${
-          row.note
-            ? ` <span class="sponsorship-dedupe-note">${escapeHtml(row.note)}</span>`
-            : ""
-        }</td>
+      (row) => `<tr>
+        <td>${escapeHtml(row.name)}</td>
         <td class="num">${formatCurrency(row.amount)}</td>
       </tr>`,
     )

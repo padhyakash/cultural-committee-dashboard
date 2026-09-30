@@ -149,8 +149,15 @@ export async function loadBankTransactions() {
     throw new Error(errors.join("; "));
   }
 
-  all.sort((a, b) => b.dateSort - a.dateSort);
-  return all;
+  const exclude = new Set(
+    (config.contributions?.excludeUpi ?? []).map((upi) => normalizeUpi(upi)),
+  );
+  const filtered = exclude.size
+    ? all.filter((tx) => !exclude.has(tx.upi))
+    : all;
+
+  filtered.sort((a, b) => b.dateSort - a.dateSort);
+  return filtered;
 }
 
 /** @param {BankTransaction[]} transactions */

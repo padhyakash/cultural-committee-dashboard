@@ -65,7 +65,9 @@ export async function fetchExpenseTotal() {
 
 /** @typedef {{ name: string, amount: number, excludedFromTotal?: boolean, note?: string }} SponsorshipRow */
 
-/** @typedef {{ bankTotal: number, priorYearBalance: number, sponsorshipTotal: number, totalCollection: number, totalExpense: number, balance: number, sponsorshipRows: SponsorshipRow[], expenseItemCount: number, fetchedAt: string }} FinanceSummary */
+/** @typedef {{ name: string, amount: number }} SponsorshipOverlapRow */
+
+/** @typedef {{ bankTotal: number, priorYearBalance: number, sponsorshipTotal: number, sponsorshipBankOverlapTotal: number, sponsorshipBankOverlapRows: SponsorshipOverlapRow[], totalCollection: number, totalExpense: number, balance: number, sponsorshipRows: SponsorshipRow[], expenseItemCount: number, fetchedAt: string }} FinanceSummary */
 
 /** @param {{ name: string, amount: number }[]} rows */
 function splitPreviousBalance(rows) {
@@ -155,14 +157,31 @@ export async function fetchFinanceSummary(bankTotal, bankTransactions = []) {
   const priorPattern = (config.sponsorshipPreviousBalancePattern || "previous balance")
     .trim()
     .toLowerCase();
+
+  /** @type {SponsorshipOverlapRow[]} */
+  const sponsorshipBankOverlapRows = [];
+  let sponsorshipBankOverlapTotal = 0;
+
+  for (const row of sponsorshipAdjusted.rows) {
+    if (priorPattern && row.name.toLowerCase().includes(priorPattern)) continue;
+    if (row.excludedFromTotal && row.note === "Already counted in bank UPI") {
+      sponsorshipBankOverlapRows.push({ name: row.name, amount: row.amount });
+      sponsorshipBankOverlapTotal += row.amount;
+    }
+  }
+
   const sponsorshipRows = sponsorshipAdjusted.rows.filter(
-    (row) => !priorPattern || !row.name.toLowerCase().includes(priorPattern),
+    (row) =>
+      !row.excludedFromTotal &&
+      (!priorPattern || !row.name.toLowerCase().includes(priorPattern)),
   );
 
   return {
     bankTotal,
     priorYearBalance,
     sponsorshipTotal: sponsorshipAdjusted.total,
+    sponsorshipBankOverlapTotal,
+    sponsorshipBankOverlapRows,
     totalCollection,
     totalExpense: expense.total,
     balance,

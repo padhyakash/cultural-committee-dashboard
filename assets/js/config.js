@@ -25,6 +25,8 @@ export const config = {
       "data/contributions/Transaction_Details_Aug_2026.csv",
       "data/contributions/Transaction_Details_Sep_2026.csv",
     ],
+    /** UPI IDs to omit from the dashboard (lowercase; not counted in bank total). */
+    excludeUpi: ["9014sant@axl"],
   },
   /** Public Google Drive folder with bill screenshots */
   billsDriveUrl:
